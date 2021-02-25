@@ -62,18 +62,20 @@ class AnimesRecenteListWidget extends StatelessWidget {
       initialData: [],
       stream: BlocProvider.of<HomeBloc>(context).outLan,
       builder: (context, snapshot) {
-        if (snapshot.data.isNotEmpty) {
-          return GridView.builder(
-              cacheExtent: 0,
-              scrollDirection: Axis.horizontal,
-              addRepaintBoundaries: true,
-              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                  childAspectRatio: 16 / 9,
-                  crossAxisSpacing: 2,
-                  maxCrossAxisExtent: MediaQuery.of(context).size.width),
-              itemCount: snapshot.data.length,
-              itemBuilder: (context, index) {
-                return Padding(
+        if (snapshot.hasData) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5.0),
+            child: GridView.builder(
+                addRepaintBoundaries: true,
+                scrollDirection: Axis.horizontal,
+                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                    childAspectRatio: 16 / 9,
+                    crossAxisSpacing: 2,
+                    maxCrossAxisExtent: MediaQuery.of(context).size.width),
+                itemCount: snapshot.data.length,
+                cacheExtent: 0,
+                itemBuilder: (context, index) {
+                  return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 3),
                     child: VerticalGridTile(
                       title: snapshot.data[index].title,
@@ -90,17 +92,18 @@ class AnimesRecenteListWidget extends StatelessWidget {
                           );
                         });
                       },
-                    ));
-              });
+                    ),
+                  );
+                }),
+          );
         }
-        return Container();
+        return CircularProgressIndicator();
       },
     );
   }
 }
 
 class EpisodiosRecentesListWidget extends StatelessWidget {
-
   const EpisodiosRecentesListWidget({Key key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -110,12 +113,13 @@ class EpisodiosRecentesListWidget extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return GridView.builder(
+              addSemanticIndexes: true,
               addRepaintBoundaries: true,
               cacheExtent: 0,
-              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                  childAspectRatio: 16 / 9,
-                  crossAxisSpacing: 2,
-                  maxCrossAxisExtent: MediaQuery.of(context).size.height),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                childAspectRatio: 16 / 9,
+                crossAxisCount: 2,
+              ),
               itemCount: snapshot.data.length,
               itemBuilder: (context, index) {
                 return Padding(
@@ -124,14 +128,17 @@ class EpisodiosRecentesListWidget extends StatelessWidget {
                     child: VerticalGridTile(
                       title: snapshot.data[index].titulo,
                       imgUrl: snapshot.data[index].thumbnail,
+                      textContainerHeight: 40,
                       onTap: () async {
                         await new Anitube()
-                            .carregarStream(snapshot.data[index].linkVisualizaAoEP)
+                            .carregarStream(
+                                snapshot.data[index].linkVisualizaAoEP)
                             .then((value) {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => MountPlayer().MountWithUrl(value.fontes[0].url),
+                              builder: (context) => MountPlayer()
+                                  .mountWithUrl(value.fontes[0].url),
                             ),
                           );
                         });
@@ -150,8 +157,15 @@ class VerticalGridTile extends StatefulWidget {
   final Function onLongPress;
   final String title;
   final String imgUrl;
+  final double textContainerHeight;
 
-  const VerticalGridTile({Key key, this.onTap, this.title, this.imgUrl,this.onLongPress})
+  const VerticalGridTile(
+      {Key key,
+      this.onTap,
+      this.title,
+      this.imgUrl,
+      this.onLongPress,
+      this.textContainerHeight = 90})
       : super(key: key);
   @override
   _VerticalGridTileState createState() => _VerticalGridTileState();
@@ -175,22 +189,29 @@ class _VerticalGridTileState extends State<VerticalGridTile> {
         });
       },
       child: GridTile(
-        child: isLoading? Center(child: CircularProgressIndicator(),):CachedNetworkImage(
-          imageUrl: widget.imgUrl,
-          placeholder: (context, url) => Center(
-            child: CircularProgressIndicator(),
-          ),
-          errorWidget: (context, url, error) => Center(
-            child: Icon(Icons.error),
-          ),
-          fit: BoxFit.fill,
-        ),
+        child: isLoading
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : CachedNetworkImage(
+                imageUrl: widget.imgUrl,
+                placeholder: (context, url) => Center(
+                  child: CircularProgressIndicator(),
+                ),
+                errorWidget: (context, url, error) => Center(
+                  child: Icon(Icons.error),
+                ),
+                fit: BoxFit.fill,
+              ),
         footer: Container(
           color: Colors.black54,
-          height: 90,
+          height: widget.textContainerHeight,
           child: Align(
             alignment: Alignment.center,
-            child: Text(widget.title),
+            child: Text(
+              widget.title,
+              maxLines: 2,
+            ),
           ),
         ),
       ),

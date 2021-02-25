@@ -34,14 +34,14 @@ class AnimesFavoritosPage extends StatelessWidget {
         ],
       ),
       body: Container(
-        child: Column(
-          children: [
-            Container(
-              height: MediaQuery.of(context).size.height * .05,
-              child: Align(
+        child: Column(children: [
+          Container(
+            height: MediaQuery.of(context).size.height * .05,
+            child: Align(
                 alignment: Alignment.center,
-                  child: Text('Segure o seu anime pare remover dos favoritos')),),
-            Container(
+                child: Text('Segure o seu anime pare remover dos favoritos')),
+          ),
+          Container(
             height: MediaQuery.of(context).size.height * .80,
             child: StreamBuilder<Map<String, DetalheAnime>>(
               initialData: {},
@@ -50,15 +50,16 @@ class AnimesFavoritosPage extends StatelessWidget {
                 if (snapshot.hasData) {
                   return GridView(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        childAspectRatio: 9/ 16,
+                        childAspectRatio: 9 / 16,
                         crossAxisSpacing: 5,
                         mainAxisSpacing: 5,
-                        crossAxisCount: 2),
-                    children: snapshot.data.values.map((e){
+                        crossAxisCount: 3),
+                    children: snapshot.data.values.map((e) {
                       return VerticalGridTile(
                         title: e.detalhes.titulo,
-                        onLongPress: ()async{
-                          BlocProvider.of<FavoriteBloc>(context).toggleFavorite(e);
+                        onLongPress: () async {
+                          BlocProvider.of<FavoriteBloc>(context)
+                              .toggleFavorite(e);
                         },
                         onTap: () async {
                           await new Anitube()
@@ -73,7 +74,8 @@ class AnimesFavoritosPage extends StatelessWidget {
                           });
                         },
                         imgUrl: e.detalhes.capa,
-                      );}).toList(),
+                      );
+                    }).toList(),
                   );
                 }
                 return Container(
@@ -83,8 +85,8 @@ class AnimesFavoritosPage extends StatelessWidget {
                 );
               },
             ),
-          ),]
-        ),
+          ),
+        ]),
       ),
     );
   }

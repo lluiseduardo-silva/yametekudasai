@@ -13,18 +13,20 @@ class TodosAnimesPage extends StatelessWidget {
       appBar: AppBar(
         title: Center(
           child: Text('Todos os animes'),
-        ),actions: [
-        StreamBuilder(
-            stream: BlocProvider.of<ListaBloc>(context).outWork,
-            builder: (context, snapshot) {
-              if(snapshot.hasData){if(snapshot.data) return Center(
-
-                child: CircularProgressIndicator(),);}
-              return Icon(Icons.check);
-            }
         ),
-      ],
-
+        actions: [
+          StreamBuilder(
+              stream: BlocProvider.of<ListaBloc>(context).outWork,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  if (snapshot.data)
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                }
+                return Icon(Icons.check);
+              }),
+        ],
       ),
       body: StreamBuilder<List<Dadoslista>>(
         stream: BlocProvider.of<ListaBloc>(context).outAnimes,
@@ -41,7 +43,8 @@ class TodosAnimesPage extends StatelessWidget {
                       dados: snapshot.data[index],
                       onTap: () async {
                         await new Anitube()
-                            .carregarDetalhes(snapshot.data[index].pageLink).then((value){
+                            .carregarDetalhes(snapshot.data[index].pageLink)
+                            .then((value) {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -55,16 +58,13 @@ class TodosAnimesPage extends StatelessWidget {
                     stream: BlocProvider.of<ListaBloc>(context).outWork,
                     initialData: false,
                     builder: (context, boleano) {
-                      if(boleano.data){
+                      if (boleano.data) {
                         return LinearProgressIndicator();
-
                       }
                       BlocProvider.of<ListaBloc>(context).inLoad.add(null);
                       return Container();
                     },
                   );
-
-
                 }
                 return LinearProgressIndicator();
               },

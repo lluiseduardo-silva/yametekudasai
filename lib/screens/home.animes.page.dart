@@ -2,65 +2,62 @@ import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:flutter/material.dart';
 import 'package:yamete_kudasai/blocs/bloc/animes.favorite.bloc.dart';
 import 'package:yamete_kudasai/blocs/bloc/animes.home.bloc.dart';
+import 'package:yamete_kudasai/blocs/delegates/busca.delegate.dart';
 import 'package:yamete_kudasai/blocs/entityes/index.dart';
-import 'package:yamete_kudasai/screens/busca.animes.page.dart';
 import 'package:yamete_kudasai/screens/favoritos.page.dart';
 import 'package:yamete_kudasai/screens/todos.animes.page.dart';
 import 'package:yamete_kudasai/screens/widgets/home.widgets.dart';
-import 'package:yamete_kudasai/screens/widgets/navigation.widgets.dart';
 
 class HomeAnimesPage extends StatelessWidget {
   const HomeAnimesPage({Key key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        actions:[
-          Align(
-            alignment: Alignment.center,
-            child: StreamBuilder<Map<String,DetalheAnime>>(
-              initialData: {},
-              stream: BlocProvider.of<FavoriteBloc>(context).outFav,
-              builder: (context, snapshot) {
-                if(snapshot.hasData){
-                  return Text(snapshot.data.length.toString());
-                }else return Container();
-              },
-            ),
+      appBar: AppBar(actions: [
+        Align(
+          alignment: Alignment.center,
+          child: StreamBuilder<Map<String, DetalheAnime>>(
+            initialData: {},
+            stream: BlocProvider.of<FavoriteBloc>(context).outFav,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return Text(snapshot.data.length.toString());
+              } else
+                return Container();
+            },
           ),
-          IconButton(
-            icon: Icon(Icons.star),
-            onPressed: (){
-              print('Navegando para os animes favoritos');
+        ),
+        IconButton(
+          icon: Icon(Icons.star),
+          onPressed: () {
+            print('Navegando para os animes favoritos');
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AnimesFavoritosPage(),
+              ),
+            );
+          },
+        ),
+        IconButton(
+            icon: Icon(Icons.list),
+            onPressed: () {
+              print('Navegando para todos animes');
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => AnimesFavoritosPage(),
+                  builder: (context) => TodosAnimesPage(),
                 ),
               );
-            },
-          ),
-          IconButton(icon: Icon(Icons.list), onPressed: (){
-            print('Navegando para todos animes');
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => TodosAnimesPage(),
-              ),
-            );
-          }),
-          IconButton(icon: Icon(Icons.search), onPressed: (){
-            print('Navegando para busca de animes');
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => BuscaAnimePage(),
-              ),
-            );
-          })
-        ],
-        title:Text('Home')
-      ),
+            }),
+        IconButton(
+          icon: Icon(Icons.search),
+          onPressed: () async {
+            await showSearch(
+                context: context, delegate: BuscaDelegate());
+          },
+        ),
+      ], title: Text('Home')),
       body: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
@@ -70,37 +67,38 @@ class HomeAnimesPage extends StatelessWidget {
             children: [
               _renderTitleSection('Mais Assistidos'),
               Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * .30,
-                margin: EdgeInsets.only(top: 10),
-                child: StreamBuilder<List<MaisAssistidos>>(
-                  initialData: [],
-                  stream: BlocProvider.of<HomeBloc>(context).outMore,
-                  builder: (context, snapshot) {
-                    if(snapshot.data.isNotEmpty){return MaisVisualizadosListWidget();}
-                    return Stack(children: [
-                      LinearProgressIndicator()
-                    ],);
-                  }
-                  ,
-                )
-              ),
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height * .30,
+                  margin: EdgeInsets.only(top: 10),
+                  child: StreamBuilder<List<MaisAssistidos>>(
+                    initialData: [],
+                    stream: BlocProvider.of<HomeBloc>(context).outMore,
+                    builder: (context, snapshot) {
+                      if (snapshot.data.isNotEmpty) {
+                        return MaisVisualizadosListWidget();
+                      }
+                      return Stack(
+                        children: [LinearProgressIndicator()],
+                      );
+                    },
+                  )),
               _renderTitleSection('Adicionados Recentemente'),
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * .30,
-                child: StreamBuilder<List<Adicionados>>(
-                  initialData: [],
-                  stream: BlocProvider.of<HomeBloc>(context).outLan,
-                  builder: (context, snapshot) {
-                    if(snapshot.data.isNotEmpty){return AnimesRecenteListWidget();}
-                    return Stack(children: [
-                      LinearProgressIndicator()
-                    ],);
-                  }
-                  ,
-                )
-              ),
+              Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height * .30,
+                  margin: EdgeInsets.only(top: 10),
+                  child: StreamBuilder<List<Adicionados>>(
+                    initialData: [],
+                    stream: BlocProvider.of<HomeBloc>(context).outLan,
+                    builder: (context, snapshot) {
+                      if (snapshot.data.isNotEmpty) {
+                        return AnimesRecenteListWidget();
+                      }
+                      return Stack(
+                        children: [LinearProgressIndicator()],
+                      );
+                    },
+                  )),
               _renderTitleSection('Episodios Recentes'),
               Container(
                 width: MediaQuery.of(context).size.width,
@@ -110,12 +108,13 @@ class HomeAnimesPage extends StatelessWidget {
                   initialData: [],
                   stream: BlocProvider.of<HomeBloc>(context).outEps,
                   builder: (context, snapshot) {
-                    if(snapshot.data.isNotEmpty){return EpisodiosRecentesListWidget();}
-                    return Stack(children: [
-                      LinearProgressIndicator()
-                    ],);
-                  }
-                  ,
+                    if (snapshot.data.isNotEmpty) {
+                      return EpisodiosRecentesListWidget();
+                    }
+                    return Stack(
+                      children: [LinearProgressIndicator()],
+                    );
+                  },
                 ),
               ),
             ],

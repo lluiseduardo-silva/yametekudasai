@@ -4,7 +4,7 @@ import 'package:yamete_kudasai/blocs/entityes/index.dart';
 import '../api.dart';
 import 'package:bloc_pattern/bloc_pattern.dart';
 
-class BuscaBloc implements BlocBase{
+class BuscaBloc implements BlocBase {
   Anitube api;
   List<Dadosbusca> animes;
   bool isWorking = false;
@@ -18,42 +18,49 @@ class BuscaBloc implements BlocBase{
   final _workController = BehaviorSubject<bool>();
   Stream get outWork => _workController.stream;
 
-  BuscaBloc(){
+  BuscaBloc() {
     api = Anitube();
 
     _buscaController.stream.listen(_busca);
   }
 
-  void _busca(String busca) async{
-    if(isWorking == false){
-      print(isWorking);
-      isWorking = true;
-      print(isWorking);
+  void _loadNext() async {
+    await api.nextBusca().then((value) {
+      isWorking = false;
       _workController.sink.add(isWorking);
-      if(busca != null){
-        print(isWorking);
-        _animesController.sink.add([]);
-         await api.busca(busca).then((value)  {
-           isWorking = false;
-           _workController.sink.add(isWorking);
-           animes = value.animesbusca.dadosbusca;
-           _animesController.sink.add(animes);
-         });
-      }else{
-        await api.nextBusca().then((value){
-          isWorking = false;
-          _workController.sink.add(isWorking);
-          animes.addAll(value.animesbusca.dadosbusca);
-          _animesController.sink.add(animes);
-        }).catchError((error){
-          isWorking = false;
-          _workController.sink.add(isWorking);
-        });
-      }
-    }else{
-      print('Aguarde');
-    }
+      animes.addAll(value.animesbusca.dadosbusca);
+      _animesController.sink.add(animes);
+    }).catchError((error) {
+      isWorking = false;
+      _workController.sink.add(isWorking);
+    });
   }
+
+  void _loadSearch(String s) async {
+    _animesController.sink.add([]);
+    await api.busca(s).then((value) {
+      isWorking = false;
+      _workController.sink.add(isWorking);
+      animes = value.animesbusca.dadosbusca;
+      _animesController.sink.add(animes);
+    });
+  }
+
+  void _busca(String busca) {
+    if (!isWorking) {
+      if (busca == null) {
+        isWorking = true;
+        _workController.sink.add(isWorking);
+        _loadNext();
+      } else if (busca.isNotEmpty) {
+        isWorking = true;
+        _workController.sink.add(isWorking);
+        _loadSearch(busca);
+      }
+    }
+    print('Aguarde');
+  }
+
   @override
   void dispose() {
     // TODO: implement dispose
@@ -61,5 +68,4 @@ class BuscaBloc implements BlocBase{
     _buscaController.close();
     _workController.close();
   }
-
 }

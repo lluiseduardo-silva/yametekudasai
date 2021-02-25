@@ -99,7 +99,7 @@ class Details extends StatelessWidget {
                                 anime.detalhes.episodios[index].link);
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => new MountPlayer().MountWithUrl(sources.fontes[0].url)),
+                              MaterialPageRoute(builder: (context) => new MountPlayer().mountWithUrl(sources.fontes[0].url)),
                             );
                           },
                         );

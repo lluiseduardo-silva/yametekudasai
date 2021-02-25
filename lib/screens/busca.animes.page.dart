@@ -16,21 +16,23 @@ class BuscaAnimePage extends StatelessWidget {
           title: Text('Busca'),
           elevation: 0,
           actions: [
-        StreamBuilder(
-        stream: BlocProvider.of<BuscaBloc>(context).outWork,
-        builder: (context, snapshot) {
-          if(snapshot.hasData){if(snapshot.data) return Center(
-
-            child: CircularProgressIndicator(),);}
-          return Icon(Icons.check);
-        }
-    ),
+            StreamBuilder(
+                stream: BlocProvider.of<BuscaBloc>(context).outWork,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    if (snapshot.data)
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                  }
+                  return Icon(Icons.check);
+                }),
             IconButton(
               icon: Icon(Icons.search),
               onPressed: () async {
                 String q = await showSearch(
                     context: context, delegate: BuscaDelegate());
-                print('Enviou a request com o dado ${q}');
+                print('Enviou a request com o dado $q');
                 if (q != null)
                   BlocProvider.of<BuscaBloc>(context).inBusca.add(q);
               },

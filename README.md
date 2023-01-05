@@ -1,5 +1,7 @@
 # yamete_kudasai
 
+Não é mais funcional...
+
 Aplicativo que executa um scrapper no site [Anitube](https://www.anitube.site)
 
 ## No momento os seguintes recursos já foram desenvolvidos...
